@@ -5,11 +5,11 @@ const loginState = { passedUsername: false, passedPassword: false, errorUsername
 
 const credentials = {
         username1: 'Gaurav',
-        password1: 'GauravsPassword',
+        password1: 'Gaurav',
         username2: 'Mohit',
-        password2: 'MohitsPassword',
+        password2: 'Mohit',
         username3: 'Saurabh',
-        password3: 'SaurabhsPassword',
+        password3: 'Saurabh',
         passed: false
 };
 
@@ -26,27 +26,10 @@ const loginSlice = createSlice({
             else {
                 state.passed = false;
             }
-
-            // if(state.username === action.payload.username) {
-            //     state.passedUsername = true;
-            //     state.errorMessage = '';
-            // }
-            // else if(state.username !== action.payload.username) {
-            //     state.passed = false;
-            //     state.errorUsernameMessage = 'username incorrect!';
-            // }
-        // },
-        // checkPassword(state, action) {
-        //     console.log(action.payload, 'action.payload');
-        //     if(state.password === action.payload.password) {
-        //         state.passedPassword = true;
-        //         state.errorMessage = '';
-        //     }
-        //     else if(state.password !== action.payload.password) {
-        //         state.passedPassword = false;
-        //         state.errorPasswordMessage = 'password incorrect!';
-        //     }
-        // }
+        },
+        resetPassed(state) {
+            console.log('reached here...')
+            state.passed = false;
         }
     }
 });

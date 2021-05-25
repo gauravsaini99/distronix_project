@@ -1,15 +1,24 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 import LoginComponent from './components/Login';
-import Home from './components/Home';
+import SearchBooks from './components/SearchBooks';
+import {Route, Switch, Redirect} from 'react-router-dom';
 
 function App() {
   return (
-    // <Router history = {createHistory}>
-    //   <Route path='/' component={LoginComponent}/>
-    // </Router>
-    // <LoginComponent />
-    <Home/>
+    <React.Fragment>
+      <Switch>
+        <Route path='/' exact>
+          <Redirect to = '/login' />
+        </Route>
+        <Route path = '/login'>
+          <LoginComponent />
+        </Route>
+        <Route path = '/searchbooks'>
+          <SearchBooks />
+        </Route>
+    </Switch>
+    </React.Fragment>
   );
 }
 

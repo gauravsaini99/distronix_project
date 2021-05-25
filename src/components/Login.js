@@ -9,10 +9,17 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { loginActions } from '../store/index';
 import { useSelector, useDispatch } from 'react-redux';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+import {useHistory}  from 'react-router-dom';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles({
     root: {
-      minWidth: 275,
+      minWidth: 400,
     },
     bullet: {
       display: 'inline-block',
@@ -21,6 +28,7 @@ const useStyles = makeStyles({
     },
     title: {
       fontSize: 28,
+      textAlign: 'center'
     },
     pos: {
       marginBottom: 12,
@@ -37,9 +45,28 @@ const useStylesTF = makeStyles((theme) => ({
 }));
 
 const Login = () => {
+    const history = useHistory();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [clicked, setClicked] = useState(false);
+
+    // const [open, setOpen] = React.useState(false);
+
+    const [state, setState] = React.useState({
+      open: false,
+      vertical: 'bottom',
+      horizontal: 'center',
+    });
+
+    const { vertical, horizontal, open } = state;
+
+    const handleClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+
+      setState({ ...state, open: false });
+    };
 
     const dispatch = useDispatch();
     const passed = useSelector(state => state.login.passed);
@@ -57,10 +84,33 @@ const Login = () => {
         setPassword(event.target.value);
     }
 
+    const openSnackbar = (newState) => {
+      if(username === '' || password === '' || !passed) { 
+        setState({open: true, ...newState});
+      }
+      else if(passed){
+        setState({open: true, ...newState})
+      }
+    } 
+
+
     const handleSubmit = () => {
         setClicked(true);
         dispatch(loginActions.checkCredentials({username: username, password: password}));
+        openSnackbar({ vertical: 'bottom', horizontal: 'center' });
     }
+
+    const redirectIt = () => {
+      console.log('redirect it!');
+      dispatch(loginActions.resetPassed());
+      history.push('/searchbooks');
+    }
+
+    useEffect(() => {
+      if(passed) {
+        redirectIt();
+      }
+    }, [passed]);
 
     return (
         <Fragment>
@@ -86,14 +136,26 @@ const Login = () => {
                     onChange={handlePasswordChange}
                 />
                 <br/>
-                <p>{clicked && username === '' ? 'Enter username !' : clicked && password === '' ? 'Enter Password !': clicked && !passed? 'Credentials Wrong !' : ''}</p>
+                <br/><br/>
                 </form>
             </CardContent>
             <CardActions>
-                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+                <Button variant="contained" style={{margin: 'auto'}} onClick={handleSubmit}>Submit</Button>
             </CardActions>
             </Card>
             </div>
+            <Snackbar 
+              open={open} 
+              autoHideDuration={1000} 
+              onClose={handleClose}
+              anchorOrigin={{ vertical, horizontal }}
+              key={vertical + horizontal}
+            >
+            <Alert onClose={handleClose} severity={!passed ? "error": "success"}>
+              {clicked && username === '' && password === '' ? 'Enter Credentials !' : clicked && username === '' ? 'Enter username !' : clicked && password === '' ? 'Enter Password !': clicked && !passed? 'Credentials Wrong !' : 'Successfully Logged In !'}
+            </Alert>
+            </Snackbar>
+
         </Fragment>
     );
 };
