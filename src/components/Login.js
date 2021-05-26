@@ -7,11 +7,11 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { loginActions } from '../store/index';
+import { loginActions, pageActions } from '../store/index';
 import { useSelector, useDispatch } from 'react-redux';
+import {useHistory}  from 'react-router-dom';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import {useHistory}  from 'react-router-dom';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -19,7 +19,16 @@ function Alert(props) {
 
 const useStyles = makeStyles({
     root: {
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    root_: {
       minWidth: 400,
+      minHeight: 500
     },
     bullet: {
       display: 'inline-block',
@@ -50,8 +59,6 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [clicked, setClicked] = useState(false);
 
-    // const [open, setOpen] = React.useState(false);
-
     const [state, setState] = React.useState({
       open: false,
       vertical: 'bottom',
@@ -70,6 +77,7 @@ const Login = () => {
 
     const dispatch = useDispatch();
     const passed = useSelector(state => state.login.passed);
+    const user = useSelector(state => state.login.loggedInUser);
 
     const classes = useStyles();
     const bull = <span className={classes.bullet}>•</span>;
@@ -103,7 +111,8 @@ const Login = () => {
     const redirectIt = () => {
       console.log('redirect it!');
       dispatch(loginActions.resetPassed());
-      history.push('/searchbooks');
+      localStorage.setItem('user', JSON.stringify(user));
+      history.push('/drawer/searchbooks');
     }
 
     useEffect(() => {
@@ -112,11 +121,16 @@ const Login = () => {
       }
     }, [passed]);
 
+
+    useEffect(() => {
+      dispatch(pageActions.currentPage({page: 'login'}));
+    }, []);
+
+
     return (
         <Fragment>
-            <div className="center">
-            <Card className={classes.root}>
-            <CardContent>
+            <div className={classes.root}>
+            <Card className={classes.root_}>
                 <Typography className={classes.title} color="textSecondary" gutterBottom>
                 Login
                 </Typography>
@@ -137,11 +151,8 @@ const Login = () => {
                 />
                 <br/>
                 <br/><br/>
+                <Button variant="contained" style={{margin: 'auto', position: 'relative'}} onClick={handleSubmit}>Submit</Button>
                 </form>
-            </CardContent>
-            <CardActions>
-                <Button variant="contained" style={{margin: 'auto'}} onClick={handleSubmit}>Submit</Button>
-            </CardActions>
             </Card>
             </div>
             <Snackbar 
@@ -155,7 +166,6 @@ const Login = () => {
               {clicked && username === '' && password === '' ? 'Enter Credentials !' : clicked && username === '' ? 'Enter username !' : clicked && password === '' ? 'Enter Password !': clicked && !passed? 'Credentials Wrong !' : 'Successfully Logged In !'}
             </Alert>
             </Snackbar>
-
         </Fragment>
     );
 };
