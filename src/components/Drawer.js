@@ -23,6 +23,7 @@ import { useParams } from 'react-router-dom';
 import GetEntireBookContents from './GetEntireBookContents';
 import {useHistory} from 'react-router-dom';
 import Wallet from './Wallet';
+import Lend from './Lend';
 
 const drawerWidth = 200;
 
@@ -35,9 +36,15 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
     '& > *': {
       margin: theme.spacing(1),
-      width: theme.spacing(16),
-      height: theme.spacing(16),
+      width: theme.spacing(100),
+      height: theme.spacing(10),
     },
+  },
+  center: {
+    position: 'absolute',
+    left: '51%',
+    top: '15%',
+    transform: 'translate(-50%, -50%)',
   },
   paper2: {
     display: 'flex',
@@ -185,7 +192,7 @@ export default function SearchBooks() {
       >
         <div className={classes.drawerHeader} />
         {params.page === 'searchbooks' &&
-        <div className="classes.paper center">
+        <div className={clsx(classes.paper, classes.center)}>
           <Paper elevation={3}>
             <div className={classes.textfield}>
               <TextField id="outlined-basic" label="Search Books" variant="outlined" onChange={handleChangeSearchBox} value={typed} />
@@ -199,7 +206,8 @@ export default function SearchBooks() {
           <Paper elevation={6}>
             <BookCards search={searchedBook} />
           </Paper>
-        </div> : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : null}
+        </div> : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
+        params.page = 'lend' ? <Lend /> : null}
         <Typography paragraph>
           
         </Typography>

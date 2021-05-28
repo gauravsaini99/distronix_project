@@ -1,27 +1,59 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import {booksArr} from '../components/books.js';
+import storage from 'redux-persist/lib/storage';
+import { combineReducers } from 'redux';
+import { persistReducer } from 'redux-persist';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import thunk from 'redux-thunk';
 
 const credentials = {
     user1: {
         username: 'Gaurav',
         password: 'Gaurav',
-        wallet: '$200',
+        wallet: '$5000',
     },
     user2: {
         username: 'Mohit',
         password: 'Mohit',
-        wallet: '$100',
+        wallet: '$2000',
     },
     user3: {
         username: 'Saurabh',
         password: 'Saurabh',
-        wallet: '$50',
+        wallet: '$5500',
     },
     passed: false,
     loggedInUser: {
         username: '',
         password: '',
-        wallet: ''
+        wallet: '',
+        booksRented: []
+    },
+    books: {
+        book0: {
+            copies: 0
+        },
+        book1: {
+            copies: 0
+        },
+        book2: {
+            copies: 0
+        },
+        book3: {
+            copies: 0
+        },
+        book4: {
+            copies: 0
+        },
+        book5: {
+            copies: 0
+        },
+        book6: {
+            copies: 0
+        },
+        book7: {
+            copies: 0
+        }
     }
 };
 
@@ -30,6 +62,18 @@ const loginSlice = createSlice({
     name: 'login',
     initialState: credentials,
     reducers: {
+        initializeWithDefaults(state, action){
+            console.log(action.payload.username, 'inside reducer');
+            if(action.payload.username === state.user1.username) {
+                state.loggedInUser.wallet = '$5000';
+            }
+            else if(action.payload.username === state.user2.username ) {
+                state.loggedInUser.wallet = '$2000';
+            }
+            else if(action.payload.username === state.user3.username) {
+                state.loggedInUser.wallet = '$5500'; 
+            }
+        },
         checkCredentials(state, action) {
             if( (action.payload.username === state.user1.username && action.payload.password === state.user1.password ) 
                 || (action.payload.username === state.user2.username && action.payload.password === state.user2.password )
@@ -38,7 +82,6 @@ const loginSlice = createSlice({
                     state.loggedInUser.username = action.payload.username;
                     switch(action.payload.username.toString()) {
                         case state.user1.username.toString(): {
-                            console.log('i came here')
                             state.loggedInUser.wallet = state.user1.wallet;
                             break;
                         }
@@ -54,19 +97,51 @@ const loginSlice = createSlice({
                             break;
                         }
                     }
+
+                    let arr = Object.keys(state.books);
+                    booksArr.map((book, i) => {
+                            state.books[`${arr[i]}`].copies = book.copies;
+                    });
             }
             else {
                 state.passed = false;
             }
         },
         resetPassed(state) {
-            console.log('reached here...')
             state.passed = false;
+        },
+        rentBook(state, action) {
+            state.loggedInUser.wallet = action.payload.leftNow;
+            state.loggedInUser.booksRented.push({title: action.payload.title, rentdate: action.payload.date});
+            let arr = Object.keys(state.books);
+            arr.map((obj, i) => {
+                if(parseInt(obj.slice(-1)) === action.payload.id) {
+                    state.books[`${obj}`].copies -= 1;
+                }
+            })
+        },
+        fillLoggedInUserData(state, action) {
+            state.loggedInUser.wallet = action.payload.wallet;
+            state.loggedInUser.username = action.payload.username;
+            state.loggedInUser.booksRented = [...action.payload.booksRented];
+            if(action.payload.username === state.user1.username) {
+                state.user1.wallet = action.payload.wallet;
+            }
+            else if(action.payload.username === state.user2.username) {
+                state.user2.wallet = action.payload.wallet;
+            }
+            else if(action.payload.username === state.user3.username) {
+                state.user3.wallet = action.payload.wallet;
+            }
+        },
+        reset(state) {
+            return state;
         }
     }
 });
 
 const bookState = {
+    id: 0,
     title: '',
     author: '',
     pic: '',
@@ -85,6 +160,7 @@ const bookSlice = createSlice({
             state.author = action.payload.author;
         },
         selectedBook(state, action) {
+            state.id = action.payload.selectedBookContents.id;
             state.title = action.payload.selectedBookContents.title;
             state.author = action.payload.selectedBookContents.author;
             state.pic = action.payload.selectedBookContents.pic;
@@ -111,12 +187,24 @@ const pageSlice = createSlice({
     }
 })
 
+const reducers = combineReducers({
+    login: loginSlice.reducer,
+    book: bookSlice.reducer,
+    page: pageSlice.reducer,
+});
+
+const persistConfig = {
+    key: 'root',
+    storage: storage,
+    stateReconciler: autoMergeLevel2 // see "Merge Process" section for details.
+};
+
+const persistedReducer = persistReducer(persistConfig, reducers);
+
 const store = configureStore({
-    reducer: { 
-        login: loginSlice.reducer,
-        book: bookSlice.reducer,
-        page: pageSlice.reducer,
-    }
+    reducer: persistedReducer,
+    devTools: process.env.NODE_ENV !== 'production',
+    middleware: [thunk]
 });
 
 export const loginActions = loginSlice.actions;

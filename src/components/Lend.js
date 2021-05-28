@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {bookActions} from '../store/index';
-import { useHistory } from 'react-router-dom'; 
-import {booksArr} from './books';
+import { loginActions } from '../store/index';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -12,7 +10,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { LocalConvenienceStoreOutlined, SettingsInputCompositeSharp } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -36,50 +33,49 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const GetEntireBookContents = (props) => {
-    const history = useHistory();
+
+const Lend = (props) => {
+    const dispatch = useDispatch();
     const classes = useStyles();
     const params = useParams();
-    const dispatch = useDispatch();
     const bookSelected = useSelector(state => state.book);
-    const booksLoginState = useSelector(state => state.login.books);
-    const [copies, setCopies] = React.useState(0);
+    const walletLoggedInUser = useSelector(state => state.login.loggedInUser);
+    const booksLeft = useSelector(state => state.login.books);
+    const [copyBook, setCopyBook] = useState(0);
 
-    const getIt = () => {
-        let selectedBook;
-        for(let i =0; i<booksArr.length; i++) {
-            if(i === parseInt(props.bookId)) {
-                selectedBook = booksArr[i];
-            }
+    const handlePay = (e) => {
+        let today = new Date();
+        // let datestamp = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let arr = walletLoggedInUser.booksRented.filter(book => book.title === bookSelected.title);
+        console.log(arr, 'arr', bookSelected.title, 'book selected title');
+        if(copyBook > 0 && ( !walletLoggedInUser.booksRented.filter(book => book.title === bookSelected.title).length || !walletLoggedInUser.booksRented.length) ) {
+            let amountToPay = parseFloat(bookSelected['rent cost'].replace('$', ''));
+            let walletLeft = parseFloat(walletLoggedInUser.wallet.replace('$', '')) - amountToPay;
+            dispatch(loginActions.rentBook({leftNow: '$' + walletLeft.toString(), title: bookSelected.title, id: bookSelected.id, date: today}));
         }
-        
-        let keys = Object.keys(booksLoginState);
+    }
+
+    useEffect(() => {
+        localStorage.setItem('transaction-history', JSON.stringify(walletLoggedInUser));
+    }, [walletLoggedInUser]);
+
+    useEffect(() => {
+        let keys = Object.keys(booksLeft);
         let foundKey;
         keys.map((key, i) => {
-            if(key.slice(-1) === params.param) {
-                foundKey = 'book' + params.param;
+            if(key.slice(-1) === bookSelected.id.toString()) {
+                foundKey = 'book' + bookSelected.id.toString();
             }
         });
-
         let updatedValue;
-        for(const [key, value] of Object.entries(booksLoginState)) {
+        for(const [key, value] of Object.entries(booksLeft)) {
             if(key === foundKey) {
                 updatedValue = value.copies;
             }
         }
-        return {selectedBook: selectedBook, value: updatedValue};
-    }
+        setCopyBook(updatedValue);
+    }, [booksLeft]);
 
-    useEffect(() => {
-        let result = getIt();
-        setCopies(result.value);
-        dispatch(bookActions.selectedBook({selectedBookContents: result.selectedBook}));
-    }, []);
-
-    const handleLend = () => {
-        history.push(`/drawer/lend`);   
-    }
- 
     return (
         <React.Fragment>
             <Card className={classes.root_}>
@@ -100,24 +96,22 @@ const GetEntireBookContents = (props) => {
                     Author: {bookSelected.author}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    Left: {copies}
+                    Left: {copyBook}
+                    <br/>
+                    Days: 60
                     <br/>
                     Rent: {bookSelected['rent cost']}
-                    <br/>
-                    Pages: {bookSelected.pages}
-                    <br/>
-                    ISBN: {bookSelected.ISBN}
                 </Typography>
                 </CardContent>
             </CardActionArea>
             <CardActions>
-                <Button size="small" color="primary" onClick={() => handleLend()}>
-                    Rent It
+                <Button size="small" color="primary" onClick={(e) => handlePay(e)}>
+                    Pay for Book
                 </Button>
             </CardActions>
             </Card>
         </React.Fragment>
     );
-}
+};
 
-export default GetEntireBookContents;
+export default Lend;

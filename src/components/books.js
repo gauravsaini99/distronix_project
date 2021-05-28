@@ -7,6 +7,7 @@ export const booksArr = [
         copies: 2,
         'rent cost': '$10',
         pages: 350,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -17,6 +18,7 @@ export const booksArr = [
         copies: 4,
         'rent cost': '$15',
         pages: 550,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -27,6 +29,7 @@ export const booksArr = [
         copies: 1,
         'rent cost': '$20',
         pages: 600,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -37,6 +40,7 @@ export const booksArr = [
         copies: 15,
         'rent cost': '$20',
         pages: 700,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -47,6 +51,7 @@ export const booksArr = [
         copies: 12,
         'rent cost': '$10',
         pages: 150,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -57,6 +62,7 @@ export const booksArr = [
         copies: 19,
         'rent cost': '$25',
         pages: 1000,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -67,6 +73,7 @@ export const booksArr = [
         copies: 10,
         'rent cost': '$19.25',
         pages: 1200,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     },
     {
@@ -77,6 +84,7 @@ export const booksArr = [
         copies: 23,
         'rent cost': '$10.25',
         pages: 230,
+        days: 60,
         ISBN: Math.floor((Math.random() * 10000000000000) + 1000000000000)
     }
 ]

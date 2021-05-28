@@ -105,13 +105,12 @@ const Login = () => {
     const handleSubmit = () => {
         setClicked(true);
         dispatch(loginActions.checkCredentials({username: username, password: password}));
+        // dispatch(loginActions.initializeWithDefaults({username: username}));
         openSnackbar({ vertical: 'bottom', horizontal: 'center' });
     }
 
     const redirectIt = () => {
-      console.log('redirect it!');
       dispatch(loginActions.resetPassed());
-      localStorage.setItem('user', JSON.stringify(user));
       history.push('/drawer/searchbooks');
     }
 
@@ -121,11 +120,21 @@ const Login = () => {
       }
     }, [passed]);
 
-
     useEffect(() => {
       dispatch(pageActions.currentPage({page: 'login'}));
+      dispatch(loginActions.reset());
+      // localStorage.removeItem('transaction-history');
+      let user_data = JSON.parse(localStorage.getItem('transaction-history'));
+      if(user_data === null) {
+        user_data = {username: '', password: '', wallet: '', booksRented: []};
+      }
+      console.log(user_data, 'user_data');
+      dispatch(loginActions.fillLoggedInUserData(user_data));
     }, []);
 
+    useEffect(() => {
+      console.log(user, 'user');
+    }, [user]);
 
     return (
         <Fragment>

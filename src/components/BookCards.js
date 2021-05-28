@@ -49,10 +49,11 @@ export default function BookCards(props) {
     const dispatch = useDispatch();
     const [foundBook, setFoundBook] = React.useState({book: [], id: 0});
     const bookSelected = useSelector(state => state.book);
+    const books = useSelector(state => state.login.books);
+
     const [clicked, setClicked] = React.useState({book: {}, clicked: false});
 
     const handleClick = (book, id) => {
-      console.log('i m clicked');
       setClicked({book: book, clicked: true});  
       history.push(`/drawer/getbookspecs/${id}`);
     }
@@ -61,10 +62,6 @@ export default function BookCards(props) {
       setClicked({book: book, clicked: true});
       history.push(`/drawer/getbookspecs/${book.id}`)
     }
-
-    useEffect(() => {
-        console.log(bookSelected, 'book in redux');
-    }, [bookSelected]);
 
     useEffect(() => {
       if(props.search !== '') {
@@ -76,9 +73,6 @@ export default function BookCards(props) {
       }
     }, [props.search])
 
-    useEffect(() => {
-      console.log(clicked.book.title);
-    }, [clicked])
     return (
         <React.Fragment>
         {clicked.clicked ? <GetEntireBookContents title={clicked.book.title} author={clicked.book.author} /> : null}
