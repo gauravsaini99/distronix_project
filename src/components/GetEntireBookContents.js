@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {bookActions} from '../store/index';
+import {bookActions, pageActions} from '../store/index';
 import { useHistory } from 'react-router-dom'; 
 import {booksArr} from './books';
 import { useParams } from 'react-router-dom';
@@ -35,6 +35,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+let backListener;
+
 const GetEntireBookContents = (props) => {
     const history = useHistory();
     const classes = useStyles();
@@ -42,7 +44,30 @@ const GetEntireBookContents = (props) => {
     const dispatch = useDispatch();
     const bookSelected = useSelector(state => state.book);
     const booksLoginState = useSelector(state => state.login.books);
+    const page = useSelector(state=> state.page.page);
     const [copies, setCopies] = React.useState(0);
+
+    useEffect(() => {
+        dispatch(pageActions.currentPage({page: 'GetBookSpecs'}))
+    }, []);
+
+    useEffect(() => {
+        console.log(page, 'page');
+    }, [page]);
+
+    
+    useEffect(() => {
+        backListener = history.listen((location, action) => {
+            if (action === "POP") {
+              console.log('i m on back button press');
+              dispatch(pageActions.currentPage({page: 'SearchLibrary'}));
+              history.push('/drawer/searchbooks/searchlibrary');
+            }
+        });
+        return () => {
+            backListener();
+        }
+    }, []);
 
     const getIt = () => {
         console.log(props, 'props')
@@ -77,6 +102,7 @@ const GetEntireBookContents = (props) => {
     }, [params.param, props.bookId]);
 
     const handleLend = () => {
+        dispatch(pageActions.currentPage({page: 'Lend'}));
         history.push(`/drawer/lend`);   
     }
  

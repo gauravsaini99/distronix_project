@@ -122,6 +122,7 @@ const Login = () => {
 
     useEffect(() => {
       if(passed) {
+        dispatch(pageActions.currentPage({page: 'SearchLibrary'}));
         redirectIt();
       }
     }, [passed]);

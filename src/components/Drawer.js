@@ -24,7 +24,7 @@ import GetEntireBookContents from './GetEntireBookContents';
 import {useHistory} from 'react-router-dom';
 import Wallet from './Wallet';
 import Lend from './Lend';
-import {loginActions, bookActions } from '../store/index';
+import {loginActions, bookActions, pageActions } from '../store/index';
 import { useSelector, useDispatch } from 'react-redux';
 import $ from 'jquery';
 
@@ -134,24 +134,24 @@ export default function SearchBooks() {
   const params = useParams();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [searchedBook, setSearchedBook] = useState('');
-  const [typed, setTyped] = useState('');
+  // const [searchedBook, setSearchedBook] = useState('');
+  // const [typed, setTyped] = useState('');
   const [showWallet, setShowWallet] = useState(false);
   const [showSearchPage, setShowSearchPage] = useState(false);
   const [showMyBooks, setShowMyBooks] = useState(false);
   const dispatch = useDispatch();
   const loginSt = useSelector(state => state.login);
   const bookSt = useSelector(state => state.book);
+  const page = useSelector(state => state.page.page);
 
-  const handleChangeSearchBox = (event) => {
-    console.log(event.target.value);
-    setTyped(event.target.value);
-  }
+  // const handleChangeSearchBox = (event) => {
+  //   setTyped(event.target.value);
+  // }
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    setSearchedBook(typed);
-  }
+  // const handleSearchSubmit = (event) => {
+  //   event.preventDefault();
+  //   setSearchedBook(typed);
+  // }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -168,6 +168,7 @@ export default function SearchBooks() {
           setShowSearchPage(false);
           setShowMyBooks(false);
           setShowWallet(true);
+          dispatch(pageActions.currentPage({page: 'Wallet'}))
           history.push('/drawer/wallet');
           break;
       }
@@ -176,6 +177,7 @@ export default function SearchBooks() {
         setShowWallet(false);
         setShowSearchPage(false);
         setShowMyBooks(true);
+        dispatch(pageActions.currentPage({page: 'ShowMyBooks'}))
         history.push('/drawer/searchbooks/showmybooks');
         break;
       }
@@ -183,7 +185,8 @@ export default function SearchBooks() {
         setShowWallet(false);
         setShowMyBooks(false);
         setShowSearchPage(true);
-        history.push('/drawer/searchbooks/searchlibrary')
+        dispatch(pageActions.currentPage({page: 'SearchLibrary'}))
+        history.push(`/drawer/searchbooks/searchlibrary`)
         break;
       }
       default: {
@@ -206,9 +209,6 @@ export default function SearchBooks() {
       }
    })
   }
-
-  useEffect(() => {
-  }, [loginSt]);
 
   return (
     <div className={classes.root} style={{overflow: 'hidden'}}>
@@ -240,7 +240,7 @@ export default function SearchBooks() {
         })}
       >
         <div className={classes.drawerHeader} />
-        { (params.page === 'searchbooks' || showSearchPage || showMyBooks) &&
+        {/* { (params.page === 'searchbooks' || showSearchPage || showMyBooks) &&
         <div className={clsx(classes.paper, classes.center)}>
           <Paper elevation={3}>
             <div className={classes.textfield}>
@@ -249,25 +249,15 @@ export default function SearchBooks() {
               <Button variant="contained" className={classes.button} style={{width: '20ch'}} onClick={handleSearchSubmit}>Search Book</Button>
             </div>
           </Paper>
-        </div>}
-        { (params.page === 'searchbooks' || showSearchPage || showMyBooks) ? 
-        <div className={classes.paper2}>
-          <Paper elevation={6}>
-            <BookCards search={searchedBook} />
-          </Paper>
-        </div> : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
-        params.page = 'lend' ? <Lend /> : showMyBooks ? 
-        <div className={classes.paper2}>
-          <Paper elevation={6}>
-            <BookCards myBooks={true} search={searchedBook} />
-          </Paper>
-        </div> : null}
-        <Typography paragraph>
-          
-        </Typography>
-        <Typography paragraph>
-
-        </Typography>
+        </div>} */}
+        { (page === 'SearchLibrary' || 'ShowMyBooks') && (params.page === 'searchbooks' || showSearchPage || showMyBooks) ? 
+        // <div className={classes.paper2}>
+          // <Paper elevation={6}>
+            <BookCards />
+          // </Paper>
+        // </div> 
+        : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
+        params.page = 'lend' && page === 'Lend' ? <Lend /> : null}
       </main>
       <Drawer
         className={classes.drawer}

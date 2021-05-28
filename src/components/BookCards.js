@@ -7,10 +7,16 @@ import Typography from '@material-ui/core/Typography';
 import {booksArr} from './books';
 import { useParams } from 'react-router-dom';
 import pic from '../assets/1.jpeg';
-import { bookActions } from '../store/index';
+import { bookActions, pageActions } from '../store/index';
 import { useSelector, useDispatch } from 'react-redux';
 import {useHistory}  from 'react-router-dom';
 import GetEntireBookContents from './GetEntireBookContents';
+import clsx from 'clsx';
+import Paper from '@material-ui/core/Paper';
+import '../styles/searchbooks.css';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -18,8 +24,49 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'gray',
       width: '900px',
       height: '162px',
-      marginTop: '10px',
+      marginTop: '0px',
       cursor: 'pointer'
+    },
+    paper: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      '& > *': {
+        margin: theme.spacing(1),
+        width: theme.spacing(100),
+        height: theme.spacing(10),
+      },
+    },
+    paper2: {
+      display: 'flex',
+      '& > *': {
+        margin: theme.spacing(1),
+        padding: theme.spacing(1),
+        width: '950px',
+        marginTop: '100px',
+        left: '22%',
+        position: 'relative',
+        paddingTop: '40px',
+        height: '650px',
+        overflow: 'auto',
+        paddingLeft: '25px'
+      },
+    },
+    center: {
+      position: 'absolute',
+      left: '48.5%',
+      top: '15%',
+      transform: 'translate(-50%, -50%)',
+    },
+    textfield: {
+      '& > *': {
+        margin: theme.spacing(1),
+        width: '75ch',
+      },
+    },
+    button: {
+      '& > *': {
+        margin: theme.spacing(1),
+      },
     },
     details: {
       display: 'flex',
@@ -43,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-export default function BookCards(props) {
+export default function BookCards() {
     const params = useParams();
     const history = useHistory();
     const classes = useStyles();
@@ -56,7 +103,28 @@ export default function BookCards(props) {
     const userLoggedIn = useSelector(state => state.login.loggedInUser);
     const [clicked, setClicked] = React.useState({book: {}, clicked: false});
     const [myBooks, setMyBooks] = React.useState([]);
+    const [searchedBook, setSearchedBook] = React.useState('');
+    const [typed, setTyped] = React.useState('');
+    const page = useSelector(state => state.page.page);
+    const searched = useSelector(state => state.book.search);
 
+    useEffect(() => {
+      console.log(page, 'page');
+    }, [page]);
+
+    const handleChangeSearchBox = (event) => {
+      setTyped(event.target.value);
+    }
+  
+    const handleSearchSubmit = (event) => {
+      event.preventDefault();
+      if(searched !== '' ) {
+        setSearchedBook(searched); 
+      } else {
+        setSearchedBook(typed);
+      }
+    }
+    
     useEffect(() => {
       console.log(userLoggedIn, 'logged in user details from search page')
     }, [userLoggedIn]);
@@ -79,6 +147,7 @@ export default function BookCards(props) {
 
     const handleClick = (book, id) => {
       setClicked({book: book, clicked: true});  
+      dispatch(pageActions.currentPage({page: 'GetBookSpecs'}));
       history.push(`/drawer/getbookspecs/${id}`);
     }
 
@@ -88,30 +157,40 @@ export default function BookCards(props) {
     }
 
     useEffect(() => {
-      if(props.search !== '' && params.param !== 'showmybooks') {
+      console.log('searched book wala useEffect');
+      if(searchedBook !== '' && params.param !== 'showmybooks') {
         let found;
         found = booksArr.filter(book => {
-          return book.title.toLowerCase().includes(props.search.toLowerCase())
+          return book.title.toLowerCase().includes(searchedBook.toLowerCase())
         })
         setFoundBook({book: found});
       }
-      else if(props.search !== '' && params.param === 'showmybooks') {
+      else if((searchedBook !== '' || searchedBook !== undefined) && params.param === 'showmybooks') {
         let found;
         found = userLoggedIn.booksRented.filter(book => {
-          return book.title.toLowerCase().includes(props.search.toLowerCase())
+          return book.title.toLowerCase().includes(searchedBook.toLowerCase())
         })
         setFoundBook_({book: found});
         console.log(found, 'searched book');
       }
-    }, [props.search])
+    }, [searchedBook]);
 
     return (
         <React.Fragment>
         {clicked.clicked ? <GetEntireBookContents title={clicked.book.title} author={clicked.book.author} /> : null}
-
+        <div className={clsx(classes.paper, classes.center)}>
+          <Paper elevation={3}>
+            <div className={classes.textfield}>
+              <TextField id="outlined-basic" label="Search Books" variant="outlined" onChange={handleChangeSearchBox} value={searched || typed} />
+              &emsp;
+              <Button variant="contained" className={classes.button} style={{width: '20ch'}} onClick={handleSearchSubmit}>Search Book</Button>
+            </div>
+          </Paper>
+        </div>
+        <div className={classes.paper2}>
+        <Paper elevation={6}>
         {params.param === 'showmybooks' ?
-
-          (props.search === '' ? myBooks.map((obj, i) => (
+          searchedBook === '' ? myBooks.map((obj, i) => (
             <React.Fragment>
             <Card key={i} className={classes.root} style={{cursor: 'default'}}>
             <div className={classes.details}>
@@ -158,11 +237,9 @@ export default function BookCards(props) {
               </Card>
               <br/> <br/>
               </React.Fragment>
-          ))) 
-          
+          ))
           :  
-        
-          props.search=== '' ? booksArr.map((obj, i) => (
+          searchedBook === '' ? booksArr.map((obj, i) => (
             <React.Fragment>
             <Card key={i} className={classes.root} onClick={() => handleClick(obj, i)}>
             <div className={classes.details}>
@@ -211,6 +288,8 @@ export default function BookCards(props) {
               </React.Fragment>
           )) 
         }
-        </React.Fragment>
+      </Paper>
+      </div>
+      </React.Fragment>
     );
 }

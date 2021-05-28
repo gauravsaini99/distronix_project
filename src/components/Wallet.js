@@ -1,6 +1,7 @@
 import '../styles/wallet.css';
 import WalletPic from '../assets/wallet.png';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { pageActions } from '../store/index';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -16,6 +17,7 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import { booksArr } from './books';
+import {useHistory} from 'react-router-dom';
 
 const Accordion = withStyles({
     root: {
@@ -102,19 +104,30 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+let backListener;
 const Wallet = (props) => {
     const classes = useStyles();
     const params = useParams();
+    const dispatch = useDispatch();
     const walletLoggedInUser = useSelector(state => state.login.loggedInUser);
     const [openAccordian, setOpenAccordian] = useState(false);
     const [expanded, setExpanded] = React.useState('panel1');
-    const [restDetails, setRestDetails] = useState([]);
+    const [restDetails, setRestDetails] = useState([]); 
+    const history = useHistory();
 
     const handleChange = (panel) => (event, newExpanded) => {
       setExpanded(newExpanded ? panel : false);
     };
 
     useEffect(() => {
+        backListener = history.listen((location, action) => {
+            if (action === "POP") {
+              console.log('i m on back button press');
+              dispatch(pageActions.currentPage({page: 'SearchLibrary'}));
+              history.push('/drawer/searchbooks/searchlibrary');
+            }
+        });
+
         console.log(walletLoggedInUser, 'logged in users account info');
         let rest = [];
         if(walletLoggedInUser.booksRented.length) {
@@ -133,6 +146,9 @@ const Wallet = (props) => {
         }
         console.log(rest, 'rest');
         setRestDetails(rest);
+        return () => {
+            backListener();
+        }
     }, []);
 
 

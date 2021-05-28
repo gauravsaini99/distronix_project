@@ -153,7 +153,8 @@ const bookState = {
     copies: 0,
     'rent cost': '',
     pages: 0,
-    ISBN: 0
+    ISBN: 0,
+    search: ''
 }
 
 const bookSlice = createSlice({
@@ -176,6 +177,9 @@ const bookSlice = createSlice({
         },
         reset(state) {
             state = undefined;
+        },
+        saveSearch(state, action){
+            state.search = action.payload.search;
         }
     }
 });
