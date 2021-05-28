@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { loginActions } from '../store/index';
-import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -10,6 +9,12 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,26 +42,57 @@ const useStyles = makeStyles((theme) => ({
 const Lend = (props) => {
     const dispatch = useDispatch();
     const classes = useStyles();
-    const params = useParams();
     const bookSelected = useSelector(state => state.book);
     const walletLoggedInUser = useSelector(state => state.login.loggedInUser);
     const booksLeft = useSelector(state => state.login.books);
     const [copyBook, setCopyBook] = useState(0);
+    const [userData, setUserData] = useState();
+    const [clicked, setClicked] = useState(false);
+    const [flag, setFlag] = useState(0);
 
-    const handlePay = (e) => {
+    const [state, setState] = React.useState({
+        open: false,
+        vertical: 'bottom',
+        horizontal: 'center',
+    });
+  
+    const { vertical, horizontal, open } = state;
+  
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+  
+        setState({ ...state, open: false });
+    };
+    const openSnackbar = (newState) => {
+          setState({open: true, ...newState});
+    }
+
+    useEffect(() => {
+        let user_data = JSON.parse(localStorage.getItem(`transaction-history`));
+        setUserData(user_data);
+    }, []);
+
+    const handlePay = () => {
+        setClicked(true);
+        openSnackbar({ vertical: 'bottom', horizontal: 'center' });
         let today = new Date();
-        // let datestamp = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         let arr = walletLoggedInUser.booksRented.filter(book => book.title === bookSelected.title);
-        console.log(arr, 'arr', bookSelected.title, 'book selected title');
+        console.log(arr, 'arr', bookSelected, 'book selected');
         if(copyBook > 0 && ( !walletLoggedInUser.booksRented.filter(book => book.title === bookSelected.title).length || !walletLoggedInUser.booksRented.length) ) {
             let amountToPay = parseFloat(bookSelected['rent cost'].replace('$', ''));
             let walletLeft = parseFloat(walletLoggedInUser.wallet.replace('$', '')) - amountToPay;
-            dispatch(loginActions.rentBook({leftNow: '$' + walletLeft.toString(), title: bookSelected.title, id: bookSelected.id, date: today}));
+            dispatch(loginActions.rentBook({leftNow: '$' + walletLeft.toString(), title: bookSelected.title, author: bookSelected.author, pic: bookSelected.pic, id: bookSelected.id, date: today}));
+            setFlag(1);
+        }
+        else {
+            setFlag(0);
         }
     }
 
     useEffect(() => {
-        localStorage.setItem('transaction-history', JSON.stringify(walletLoggedInUser));
+        localStorage.setItem(`transaction-history`, JSON.stringify(walletLoggedInUser));
     }, [walletLoggedInUser]);
 
     useEffect(() => {
@@ -110,6 +146,17 @@ const Lend = (props) => {
                 </Button>
             </CardActions>
             </Card>
+            <Snackbar 
+              open={open} 
+              autoHideDuration={1000} 
+              onClose={handleClose}
+              anchorOrigin={{ vertical, horizontal }}
+              key={vertical + horizontal}
+            >
+            <Alert onClose={handleClose} severity={!flag ? "error": "success"}>
+              {clicked && !flag && copyBook < 0 ? 'Not Available !' : clicked && !flag && copyBook > 0 ? "You already have this book !" : "Successfully Rented !"}
+            </Alert>
+            </Snackbar>
         </React.Fragment>
     );
 };

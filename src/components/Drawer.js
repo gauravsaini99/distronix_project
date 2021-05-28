@@ -24,6 +24,9 @@ import GetEntireBookContents from './GetEntireBookContents';
 import {useHistory} from 'react-router-dom';
 import Wallet from './Wallet';
 import Lend from './Lend';
+import {loginActions, bookActions } from '../store/index';
+import { useSelector, useDispatch } from 'react-redux';
+import $ from 'jquery';
 
 const drawerWidth = 200;
 
@@ -134,6 +137,11 @@ export default function SearchBooks() {
   const [searchedBook, setSearchedBook] = useState('');
   const [typed, setTyped] = useState('');
   const [showWallet, setShowWallet] = useState(false);
+  const [showSearchPage, setShowSearchPage] = useState(false);
+  const [showMyBooks, setShowMyBooks] = useState(false);
+  const dispatch = useDispatch();
+  const loginSt = useSelector(state => state.login);
+  const bookSt = useSelector(state => state.book);
 
   const handleChangeSearchBox = (event) => {
     console.log(event.target.value);
@@ -155,11 +163,52 @@ export default function SearchBooks() {
 
   const handleClick = (link) => {
     console.log(link, 'link');
-    if(link === 'Wallet') {
-        setShowWallet(true);
-        history.push('/drawer/wallet');
+    switch(link) {
+      case 'Wallet': {
+          setShowSearchPage(false);
+          setShowMyBooks(false);
+          setShowWallet(true);
+          history.push('/drawer/wallet');
+          break;
+      }
+      case 'Show My Books': {
+        console.log(' i was clicked ')
+        setShowWallet(false);
+        setShowSearchPage(false);
+        setShowMyBooks(true);
+        history.push('/drawer/searchbooks/showmybooks');
+        break;
+      }
+      case 'Search Books': {
+        setShowWallet(false);
+        setShowMyBooks(false);
+        setShowSearchPage(true);
+        history.push('/drawer/searchbooks/searchlibrary')
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
+
+  const doIt = () => {
+    dispatch(loginActions.resetPassed());
+    dispatch(loginActions.resetState());
+    localStorage.removeItem('transaction-history');
+  }
+
+  const handleLogout =() => {
+    $.ajax({
+      url: doIt(),
+      success:function(){
+        history.push('/');
+      }
+   })
+  }
+
+  useEffect(() => {
+  }, [loginSt]);
 
   return (
     <div className={classes.root} style={{overflow: 'hidden'}}>
@@ -191,7 +240,7 @@ export default function SearchBooks() {
         })}
       >
         <div className={classes.drawerHeader} />
-        {params.page === 'searchbooks' &&
+        { (params.page === 'searchbooks' || showSearchPage || showMyBooks) &&
         <div className={clsx(classes.paper, classes.center)}>
           <Paper elevation={3}>
             <div className={classes.textfield}>
@@ -201,13 +250,18 @@ export default function SearchBooks() {
             </div>
           </Paper>
         </div>}
-        { params.page === 'searchbooks' ? 
+        { (params.page === 'searchbooks' || showSearchPage || showMyBooks) ? 
         <div className={classes.paper2}>
           <Paper elevation={6}>
             <BookCards search={searchedBook} />
           </Paper>
         </div> : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
-        params.page = 'lend' ? <Lend /> : null}
+        params.page = 'lend' ? <Lend /> : showMyBooks ? 
+        <div className={classes.paper2}>
+          <Paper elevation={6}>
+            <BookCards myBooks={true} search={searchedBook} />
+          </Paper>
+        </div> : null}
         <Typography paragraph>
           
         </Typography>
@@ -232,7 +286,7 @@ export default function SearchBooks() {
         <Divider />
         <List>
           {['Search Books', 'Show My Books'].map((text, index) => (
-            <ListItem button key={text}>
+            <ListItem button key={text} onClick={() => handleClick(text)}>
               <ListItemText primary={text} />
             </ListItem>
           ))}
@@ -245,6 +299,10 @@ export default function SearchBooks() {
             </ListItem>
           ))}
         </List>
+        <Divider />
+        <ListItem button key="logout" onClick={() => handleLogout()}>
+          <ListItemText primary="logout" />
+        </ListItem>
       </Drawer>
     </div>
   );

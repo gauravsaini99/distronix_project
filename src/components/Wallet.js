@@ -1,7 +1,6 @@
 import '../styles/wallet.css';
 import WalletPic from '../assets/wallet.png';
-import { useSelector, useDispatch } from 'react-redux';
-import { loginActions } from '../store/index';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -76,6 +75,12 @@ const useStyles = makeStyles((theme) => ({
         top: '50%',
         transform: 'translate(-50%, -50%)'
     },
+    heading: {
+        position: 'absolute',
+        left: '51%',
+        top: '17%',
+        transform: 'translate(-50%, -50%)'
+    },
     accordianCover: {
         maxWidth: 500,
         maxHeight: 500,
@@ -86,10 +91,10 @@ const useStyles = makeStyles((theme) => ({
         top: '50%',
         left: '60%',
         transform: 'translate(-50%, -50%)',
+        overflow: 'auto'
     },
     scrollableCard: {
         maxWidth: 580,
-        maxHeight: 500,
         overflow: 'auto'
     },
     media: {
@@ -138,7 +143,7 @@ const Wallet = (props) => {
     return (
         <React.Fragment>
             <Card className={classes.root_}>
-            <CardActionArea>
+                <CardActionArea>
                 <CardMedia
                 className={classes.media}
                 component="img"
@@ -163,11 +168,12 @@ const Wallet = (props) => {
             </CardActions>
             </Card>
             {openAccordian &&
+                <React.Fragment>
+                <Typography gutterBottom className={classes.heading} variant="h5" component="h2" color="primary">Purchase History</Typography>
                 <Card className={classes.accordianCover}>
-                <Typography gutterBottom variant="h5" component="h2" color="primary">Purchase History</Typography>
                 <Card className={classes.scrollableCard}>
-                {walletLoggedInUser.booksRented.map((book, i) => (
-                    <Accordion square expanded={expanded === i} onChange={handleChange(i)}>
+                {walletLoggedInUser.booksRented.length ? walletLoggedInUser.booksRented.map((book, i) => (
+                    <Accordion key={i} square expanded={expanded === i} onChange={handleChange(i)}>
                     <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
                     <Typography>{book.title}</Typography>
                     </AccordionSummary>
@@ -180,9 +186,13 @@ const Wallet = (props) => {
                     </Typography>
                     </AccordionDetails>
                 </Accordion>
-                ))}
-            </Card>
-            </Card>}
+                )): 
+                <Typography>
+                    No Books Rented Yet.
+                </Typography>}
+                </Card>
+                </Card>
+        </React.Fragment>}
         </React.Fragment>
     );
 }

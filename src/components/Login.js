@@ -53,11 +53,28 @@ const useStylesTF = makeStyles((theme) => ({
     },
 }));
 
+let user_data;
+
 const Login = () => {
     const history = useHistory();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [clicked, setClicked] = useState(false);
+    const dispatch = useDispatch();
+    const passed = useSelector(state => state.login.passed);
+    const user = useSelector(state => state.login.loggedInUser);
+    const classes = useStyles();
+    const bull = <span className={classes.bullet}>•</span>;
+    const classesTF = useStyles();
+    const [userData, setUserData] = useState();
+
+    useEffect(() => {
+        // localStorage.removeItem('transaction-history');
+        console.log(user, 'user');
+        user_data = JSON.parse(localStorage.getItem(`transaction-history`));
+        setUserData(user_data);
+    }, [])
+
 
     const [state, setState] = React.useState({
       open: false,
@@ -75,15 +92,6 @@ const Login = () => {
       setState({ ...state, open: false });
     };
 
-    const dispatch = useDispatch();
-    const passed = useSelector(state => state.login.passed);
-    const user = useSelector(state => state.login.loggedInUser);
-
-    const classes = useStyles();
-    const bull = <span className={classes.bullet}>•</span>;
-
-    const classesTF = useStyles();
-
     const handleUsernameChange = (event) => {
         setUsername(event.target.value);
     }
@@ -99,8 +107,7 @@ const Login = () => {
       else if(passed){
         setState({open: true, ...newState})
       }
-    } 
-
+    }
 
     const handleSubmit = () => {
         setClicked(true);
@@ -110,7 +117,6 @@ const Login = () => {
     }
 
     const redirectIt = () => {
-      dispatch(loginActions.resetPassed());
       history.push('/drawer/searchbooks');
     }
 
@@ -120,21 +126,17 @@ const Login = () => {
       }
     }, [passed]);
 
-    useEffect(() => {
-      dispatch(pageActions.currentPage({page: 'login'}));
-      dispatch(loginActions.reset());
-      // localStorage.removeItem('transaction-history');
-      let user_data = JSON.parse(localStorage.getItem('transaction-history'));
-      if(user_data === null) {
-        user_data = {username: '', password: '', wallet: '', booksRented: []};
-      }
-      console.log(user_data, 'user_data');
-      dispatch(loginActions.fillLoggedInUserData(user_data));
-    }, []);
+    // dispatch(loginActions.initializeWithDefaults({username: username}));
+    // dispatch(loginActions.fillLoggedInUserData(userData));
+
 
     useEffect(() => {
       console.log(user, 'user');
     }, [user]);
+
+    useEffect(() => {
+        console.log(userData, 'userdata');
+    }, [userData]);
 
     return (
         <Fragment>

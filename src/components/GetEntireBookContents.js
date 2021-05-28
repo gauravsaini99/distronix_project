@@ -12,7 +12,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { LocalConvenienceStoreOutlined, SettingsInputCompositeSharp } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -46,9 +45,10 @@ const GetEntireBookContents = (props) => {
     const [copies, setCopies] = React.useState(0);
 
     const getIt = () => {
+        console.log(props, 'props')
         let selectedBook;
         for(let i =0; i<booksArr.length; i++) {
-            if(i === parseInt(props.bookId)) {
+            if(i === parseInt(params.param)) {
                 selectedBook = booksArr[i];
             }
         }
@@ -74,7 +74,7 @@ const GetEntireBookContents = (props) => {
         let result = getIt();
         setCopies(result.value);
         dispatch(bookActions.selectedBook({selectedBookContents: result.selectedBook}));
-    }, []);
+    }, [params.param, props.bookId]);
 
     const handleLend = () => {
         history.push(`/drawer/lend`);   

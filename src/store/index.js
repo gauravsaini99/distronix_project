@@ -63,14 +63,17 @@ const loginSlice = createSlice({
     initialState: credentials,
     reducers: {
         initializeWithDefaults(state, action){
-            console.log(action.payload.username, 'inside reducer');
+            console.log(action.payload.username, 'inside reducer - initialzeWithDefaults');
             if(action.payload.username === state.user1.username) {
+                console.log('Gaurav initialzed')
                 state.loggedInUser.wallet = '$5000';
             }
             else if(action.payload.username === state.user2.username ) {
+                console.log('Mohit initialzed');
                 state.loggedInUser.wallet = '$2000';
             }
             else if(action.payload.username === state.user3.username) {
+                console.log('Saurabh initialzed');
                 state.loggedInUser.wallet = '$5500'; 
             }
         },
@@ -112,9 +115,9 @@ const loginSlice = createSlice({
         },
         rentBook(state, action) {
             state.loggedInUser.wallet = action.payload.leftNow;
-            state.loggedInUser.booksRented.push({title: action.payload.title, rentdate: action.payload.date});
+            state.loggedInUser.booksRented.push({title: action.payload.title, author: action.payload.author, pic: action.payload.pic, rentdate: action.payload.date});
             let arr = Object.keys(state.books);
-            arr.map((obj, i) => {
+            arr.map((obj) => {
                 if(parseInt(obj.slice(-1)) === action.payload.id) {
                     state.books[`${obj}`].copies -= 1;
                 }
@@ -134,8 +137,10 @@ const loginSlice = createSlice({
                 state.user3.wallet = action.payload.wallet;
             }
         },
-        reset(state) {
-            return state;
+        resetState(state, action) {
+            console.log(' i m called ');
+            storage.removeItem('persist:root');
+            state = credentials;
         }
     }
 });
@@ -168,6 +173,9 @@ const bookSlice = createSlice({
             state['rent cost'] = action.payload.selectedBookContents['rent cost'];
             state.pages = action.payload.selectedBookContents.pages;
             state.ISBN = action.payload.selectedBookContents.ISBN;
+        },
+        reset(state) {
+            state = undefined;
         }
     }
 });
