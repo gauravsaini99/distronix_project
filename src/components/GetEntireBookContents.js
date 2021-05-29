@@ -97,9 +97,10 @@ const GetEntireBookContents = (props) => {
 
     useEffect(() => {
         let result = getIt();
+        console.log(result, 'result');
         setCopies(result.value);
         dispatch(bookActions.selectedBook({selectedBookContents: result.selectedBook}));
-    }, [params.param, props.bookId]);
+    }, []);
 
     const handleLend = () => {
         dispatch(pageActions.currentPage({page: 'Lend'}));
