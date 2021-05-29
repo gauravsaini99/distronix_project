@@ -6,7 +6,6 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import {booksArr} from './books';
 import { useParams } from 'react-router-dom';
-import pic from '../assets/1.jpeg';
 import { bookActions, pageActions } from '../store/index';
 import { useSelector, useDispatch } from 'react-redux';
 import {useHistory}  from 'react-router-dom';
