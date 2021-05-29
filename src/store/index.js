@@ -83,23 +83,6 @@ const loginSlice = createSlice({
                 || (action.payload.username === state.user3.username && action.payload.password === state.user3.password ) ) {
                     state.passed = true;
                     state.loggedInUser.username = action.payload.username;
-                    switch(action.payload.username.toString()) {
-                        case state.user1.username.toString(): {
-                            state.loggedInUser.wallet = state.user1.wallet;
-                            break;
-                        }
-                        case state.user2.username.toString(): {
-                            state.loggedInUser.wallet = state.user2.wallet;
-                            break;
-                        }
-                        case state.user3.username.toString(): {
-                            state.loggedInUser.wallet = state.user3.wallet;
-                            break;
-                        }
-                        default: {
-                            break;
-                        }
-                    }
 
                     let arr = Object.keys(state.books);
                     booksArr.map((book, i) => {
@@ -108,6 +91,26 @@ const loginSlice = createSlice({
             }
             else {
                 state.passed = false;
+            }
+        },
+        copyWallet(state, action) {
+            console.log('inside copy wallet reducer')
+            switch(action.payload.username.toString()) {
+                case state.user1.username.toString(): {
+                    state.loggedInUser.wallet = state.user1.wallet;
+                    break;
+                }
+                case state.user2.username.toString(): {
+                    state.loggedInUser.wallet = state.user2.wallet;
+                    break;
+                }
+                case state.user3.username.toString(): {
+                    state.loggedInUser.wallet = state.user3.wallet;
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
         },
         resetPassed(state) {
