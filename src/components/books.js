@@ -36,7 +36,7 @@ export const booksArr = [
         id: 3,
         title: "Unchained Voices: An Anthology of Black Authors in the English-Speaking World of the Eighteenth Century",
         author: "Vincent Carretta",
-        pic: "https://i.picsum.photos/id/1024/1920/1280.jpg?hmac=-PIpG7j_fRwN8Qtfnsc3M8-kC3yb0XYOBfVzlPSuVII",
+        pic: "https://i.picsum.photos/id/1004/5616/3744.jpg?hmac=Or7EJnz-ky5bsKa9_frdDcDCR9VhCP8kMnbZV6-WOrY",
         copies: 15,
         'rent cost': '$20',
         pages: 700,
