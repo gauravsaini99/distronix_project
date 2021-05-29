@@ -197,8 +197,8 @@ export default function SearchBooks() {
 
   const doIt = () => {
     dispatch(loginActions.resetPassed());
-    dispatch(loginActions.resetState());
-    localStorage.removeItem('transaction-history');
+    // dispatch(loginActions.resetState());
+    // localStorage.removeItem('transaction-history');
   }
 
   const handleLogout =() => {
