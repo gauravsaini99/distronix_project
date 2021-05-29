@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     },
     center: {
       position: 'absolute',
-      left: '48.5%',
+      left: '51%',
       top: '15%',
       transform: 'translate(-50%, -50%)',
     },
@@ -107,9 +107,13 @@ export default function BookCards() {
     const [typed, setTyped] = React.useState('');
     const page = useSelector(state => state.page.page);
     const searched = useSelector(state => state.book.search);
+    const searchedString = useRef({search: searchedBook});
 
     useEffect(() => {
       console.log(page, 'page');
+      if(page === 'ShowMyBooks') {
+        console.log(searchedString.current.search, 'searched string');
+      }
     }, [page]);
 
     const handleChangeSearchBox = (event) => {
@@ -118,11 +122,8 @@ export default function BookCards() {
   
     const handleSearchSubmit = (event) => {
       event.preventDefault();
-      if(searched !== '' ) {
-        setSearchedBook(searched); 
-      } else {
-        setSearchedBook(typed);
-      }
+      setSearchedBook(typed);
+      searchedString.current = {search: typed};
     }
     
     useEffect(() => {
@@ -158,22 +159,22 @@ export default function BookCards() {
 
     useEffect(() => {
       console.log('searched book wala useEffect');
-      if(searchedBook !== '' && params.param !== 'showmybooks') {
+      if(searchedString.current.search !== '' && params.param !== 'showmybooks') {
         let found;
         found = booksArr.filter(book => {
-          return book.title.toLowerCase().includes(searchedBook.toLowerCase())
+          return book.title.toLowerCase().includes(searchedString.current.search.toLowerCase())
         })
         setFoundBook({book: found});
       }
-      else if((searchedBook !== '' || searchedBook !== undefined) && params.param === 'showmybooks') {
+      else if((searchedString.current.search!== '' || searchedString.current.search !== undefined) && params.param === 'showmybooks') {
         let found;
         found = userLoggedIn.booksRented.filter(book => {
-          return book.title.toLowerCase().includes(searchedBook.toLowerCase())
+          return book.title.toLowerCase().includes(searchedString.current.search.toLowerCase())
         })
         setFoundBook_({book: found});
         console.log(found, 'searched book');
       }
-    }, [searchedBook]);
+    }, [searchedString.current.search, page]);
 
     return (
         <React.Fragment>
@@ -181,7 +182,7 @@ export default function BookCards() {
         <div className={clsx(classes.paper, classes.center)}>
           <Paper elevation={3}>
             <div className={classes.textfield}>
-              <TextField id="outlined-basic" label="Search Books" variant="outlined" onChange={handleChangeSearchBox} value={searched || typed} />
+              <TextField id="outlined-basic" label="Search Books" variant="outlined" onChange={handleChangeSearchBox} value={typed} />
               &emsp;
               <Button variant="contained" className={classes.button} style={{width: '20ch'}} onClick={handleSearchSubmit}>Search Book</Button>
             </div>
@@ -190,7 +191,7 @@ export default function BookCards() {
         <div className={classes.paper2}>
         <Paper elevation={6}>
         {params.param === 'showmybooks' ?
-          searchedBook === '' ? myBooks.map((obj, i) => (
+          searchedString.current.search === '' ? myBooks.map((obj, i) => (
             <React.Fragment>
             <Card key={i} className={classes.root} style={{cursor: 'default'}}>
             <div className={classes.details}>
@@ -239,7 +240,7 @@ export default function BookCards() {
               </React.Fragment>
           ))
           :  
-          searchedBook === '' ? booksArr.map((obj, i) => (
+          searchedString.current.search === '' ? booksArr.map((obj, i) => (
             <React.Fragment>
             <Card key={i} className={classes.root} onClick={() => handleClick(obj, i)}>
             <div className={classes.details}>

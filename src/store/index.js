@@ -140,7 +140,8 @@ const loginSlice = createSlice({
         resetState(state, action) {
             console.log(' i m called ');
             storage.removeItem('persist:root');
-            state = credentials;
+            const {login} = state;
+            state = {login};
         }
     }
 });
@@ -208,7 +209,7 @@ const reducers = combineReducers({
 const persistConfig = {
     key: 'root',
     storage: storage,
-    stateReconciler: autoMergeLevel2 // see "Merge Process" section for details.
+    stateReconciler: autoMergeLevel2
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
