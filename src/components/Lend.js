@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { loginActions } from '../store/index';
+import { loginActions, pageActions } from '../store/index';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -11,6 +11,8 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import { useHistory } from 'react-router-dom'; 
+
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -38,9 +40,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+let backListener;
 
 const Lend = (props) => {
     const dispatch = useDispatch();
+    const history = useHistory();
     const classes = useStyles();
     const bookSelected = useSelector(state => state.book);
     const walletLoggedInUser = useSelector(state => state.login.loggedInUser);
@@ -68,6 +72,20 @@ const Lend = (props) => {
     const openSnackbar = (newState) => {
           setState({open: true, ...newState});
     }
+
+    useEffect(() => {
+        backListener = history.listen((location, action) => {
+            if (action === "POP") {
+              console.log('i m on back button press');
+              dispatch(pageActions.currentPage({page: 'GetBookSpecs'}));
+              history.push(`/drawer/searchbooks/getbookspecs/${bookSelected.id}`);
+            }
+        });
+        return () => {
+            backListener();
+        }
+    }, []);
+
 
     useEffect(() => {
         let user_data = JSON.parse(localStorage.getItem(`transaction-history`));
