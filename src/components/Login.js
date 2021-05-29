@@ -75,6 +75,11 @@ const Login = () => {
         setUserData(user_data);
     }, [])
 
+    useEffect(() => {
+      console.log(userData, 'userData in login');
+      if(userData)
+        dispatch(loginActions.fillLoggedInUserData({username: userData.username, wallet: userData.wallet, booksRented: userData.booksRented}));
+    }, [userData]);
 
     const [state, setState] = React.useState({
       open: false,
@@ -112,6 +117,9 @@ const Login = () => {
     const handleSubmit = () => {
         setClicked(true);
         dispatch(loginActions.checkCredentials({username: username, password: password}));
+        if(!user.booksRented.length) {
+          dispatch(loginActions.copyWallet({username: username}));
+        }
         // dispatch(loginActions.initializeWithDefaults({username: username}));
         openSnackbar({ vertical: 'bottom', horizontal: 'center' });
     }
