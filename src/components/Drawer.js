@@ -250,14 +250,14 @@ export default function SearchBooks() {
             </div>
           </Paper>
         </div>} */}
-        { (page === 'SearchLibrary' || 'ShowMyBooks') && (params.page === 'searchbooks' || showSearchPage || showMyBooks) ? 
+        { (page === 'SearchLibrary' || page === 'ShowMyBooks') ? 
         // <div className={classes.paper2}>
           // <Paper elevation={6}>
             <BookCards />
           // </Paper>
         // </div> 
-        : params.page === 'getbookspecs' ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
-        params.page = 'lend' && page === 'Lend' ? <Lend /> : null}
+        : (page === 'GetBookSpecs') ? <GetEntireBookContents bookId = {params.param} /> : params.page === 'wallet' ? <Wallet /> : 
+        page === 'Lend' ? <Lend /> : null}
       </main>
       <Drawer
         className={classes.drawer}
